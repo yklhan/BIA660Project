@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[70]:
+# In[1]:
 
 
 from selenium import webdriver
@@ -10,7 +10,15 @@ import time
 import csv
 
 
-# In[71]:
+# In[2]:
+
+
+from sklearn.feature_extraction.text import CountVectorizer
+import lda
+import numpy as np
+
+
+# In[3]:
 
 
 def review_clean(text):
@@ -29,7 +37,7 @@ def review_clean(text):
     return pro, con
 
 
-# In[72]:
+# In[4]:
 
 
 def scrape(url, pageNum):
@@ -84,12 +92,122 @@ def scrape(url, pageNum):
     return reviews_storage, pros_storage, cons_storage
 
 
-# In[73]:
+# In[5]:
 
 
 url='https://www.glassdoor.com/profile/login_input.htm?userOriginHook=HEADER_SIGNIN_LINK'
-scrape_page = 1
+scrape_page = 10
 reviews, pros, cons = scrape(url, scrape_page)
+
+
+# In[8]:
+
+
+topic_num=5
+
+#tokenization
+tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
+                                
+#read the dataset                
+#docs=open('news.txt').readlines()
+
+#transform the docs into a count matrix
+pros_matrix = tf_vectorizer.fit_transform(pros)
+cons_matrix = tf_vectorizer.fit_transform(cons)
+
+#get the vocabulary
+vocab=tf_vectorizer.get_feature_names()
+
+#initialize the LDA model
+pro_model = lda.LDA(n_topics=topic_num, n_iter=250)
+con_model = lda.LDA(n_topics=topic_num, n_iter=250)
+
+#fit the model to the dataset
+pro_model.fit(pros_matrix)
+con_model.fit(cons_matrix)
+
+
+# In[15]:
+
+
+topic_keywords = {}
+#write the top terms for each topic
+top_words_num=3
+pro_topic_mixes= pro_model.topic_word_
+fw=open('pro_top_terms_per_topic.txt','w')
+for i in range(topic_num):#for each topic
+    top_indexes=np.argsort(pro_topic_mixes[i])[::-1][:top_words_num]                              
+    my_top=''
+    for ind in top_indexes:
+        my_top+=vocab[ind]+' '
+        #print(i, vocab[ind])
+        if i in topic_keywords:
+            topic_keywords[i].append(vocab[ind])
+        else:
+            topic_keywords[i] = [vocab[ind]]
+    fw.write('TOPIC: '+str(i)+' --> '+str(my_top)+'\n')
+fw.close()
+
+doc_topic = {}
+doc_top_topic = {}
+#write the top topics for each doc
+top_topics_num=1
+pro_doc_mixes= pro_model.doc_topic_
+fw=open('pro_topic_mixture_per_doc.txt','w')
+for i in range(len(doc_mixes)):#for each doc
+    top_indexes=np.argsort(pro_doc_mixes[i])[::-1][:top_topics_num]     
+    my_top=''
+    for ind in top_indexes:
+        temp_topic = ind
+        temp_likelihood = round(pro_doc_mixes[i][ind], 2)
+        likelihood_top = -1
+        topic_top = -1
+        if temp_likelihood > likelihood_top:
+            likelihood_top = temp_likelihood
+            topic_top = temp_topic
+        my_top+=' '+str(ind)+':'+str(round(pro_doc_mixes[i][ind],2))
+        #print(i, ind, round(pro_doc_mixes[i][ind], 2))
+        if i in doc_topic:
+            doc_topic[i].append((ind, round(pro_doc_mixes[i][ind], 2)))
+        else:
+            doc_topic[i] = [(ind, round(pro_doc_mixes[i][ind], 2))]
+    doc_top_topic[i] = topic_top
+    fw.write('DOC: '+str(i)+' --> '+str(my_top)+'\n')
+fw.close()
+
+
+# In[16]:
+
+
+#for each review, find largest portion topic, and count number of reviews under each topic
+#find top k(parameter), sort then loop in k
+print(topic_keywords)
+print(doc_top_topic)
+
+
+# In[26]:
+
+
+k_user = 2 #user parameter
+invers_count = {}
+for key, value in doc_top_topic.items():
+    if value in invers_count:
+        invers_count[value] += 1
+    else:
+        invers_count[value] = 1
+print(invers_count)
+count_dic = {}
+for k,v in invers_count.items():
+    count_dic[v] = k
+print(count_dic)
+
+
+# In[27]:
+
+
+for i in range(k_user):
+    print("TOP ", i+1, "comments' keywords are ", topic_keywords[count_dic[sorted(count_dic.keys())[-i]]])
+    print("e.g. ", )
 
 
 # In[ ]:
