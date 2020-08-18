@@ -1,0 +1,5 @@
+TOPIC: 0 --> company working smart 
+TOPIC: 1 --> learn lot really 
+TOPIC: 2 --> amazon day people 
+TOPIC: 3 --> work place great 
+TOPIC: 4 --> good pay great 

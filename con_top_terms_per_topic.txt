@@ -1,0 +1,5 @@
+TOPIC: 0 --> hours work time 
+TOPIC: 1 --> email reading resend 
+TOPIC: 2 --> work hard fast 
+TOPIC: 3 --> company bad management 
+TOPIC: 4 --> email continue reading 
