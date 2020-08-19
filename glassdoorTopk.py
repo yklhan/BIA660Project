@@ -8,6 +8,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 import lda
 import numpy as np
 
+k_user = 2
 
 # In[2]:
 
@@ -107,7 +108,6 @@ fw.close()
 
 
 #print out the top k pros
-k_user = 2 #user parameter !!! can not be larger than topic_num
 
 invers_count = {}
 for key, value in doc_top_topic.items():
@@ -180,7 +180,7 @@ for i in range(len(con_doc_mixes)):#for each doc
 fw.close()
 
 #print out top k cons
-k_user = 2 #user parameter
+
 invers_count = {}
 for key, value in doc_top_topic.items():
     if value in invers_count:
