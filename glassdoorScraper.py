@@ -46,7 +46,8 @@ def review_clean(text):
 #scrape the reviews of Amazon in n pages
 #parameters: url:the login page in Glassdoor website
 #            pageNum: how many pages of reviews you want to scrape
-def scrape(url, pageNum, email, password, companyUrl):
+def scrape(pageNum, email, password, companyUrl):
+    url='https://www.glassdoor.com/profile/login_input.htm?userOriginHook=HEADER_SIGNIN_LINK'
     reviews_storage = []
     pros_storage = []
     cons_storage = []
@@ -69,7 +70,6 @@ def scrape(url, pageNum, email, password, companyUrl):
     limit = 0
 
     reviews=driver.find_elements_by_css_selector('li[class="empReview cf"]')
-    #print(len(reviews),' Reviews found\n')
     
     while limit < pageNum:
         print("To infinity and beyond! We're getting close, on %d now! page " % (limit))
@@ -84,8 +84,7 @@ def scrape(url, pageNum, email, password, companyUrl):
         time.sleep(2)
         print ("entering new page for review mining")
         limit = limit + 1
-        reviews=driver.find_elements_by_css_selector('li[class="empReview cf"]')#
-        #print(len(reviews),' Reviews found\n')
+        reviews=driver.find_elements_by_css_selector('li[class="empReview cf"]')
 
     
     time.sleep(2)
@@ -96,15 +95,14 @@ def scrape(url, pageNum, email, password, companyUrl):
     return reviews_storage, pros_storage, cons_storage
 
 
-# In[6]:
+# In[5]:
 
 
-url='https://www.glassdoor.com/profile/login_input.htm?userOriginHook=HEADER_SIGNIN_LINK'
 scrape_page = 2 #page number can not be larger than 64 based on test, the scraper is not handling the gmail verification
 email = "gonzalez.o1991@gmail.com"
 password = "SharedPassword1"
 companyUrl = 'https://www.glassdoor.com/Reviews/Amazon-Reviews-E6036.htm'
-reviews, pros, cons = scrape(url, scrape_page, email, password, companyUrl)
+reviews, pros, cons = scrape(scrape_page, email, password, companyUrl)
 
 
 # In[6]:
